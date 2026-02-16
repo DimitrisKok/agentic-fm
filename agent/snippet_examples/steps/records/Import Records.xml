@@ -2,7 +2,34 @@
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Import Records">
     <NoInteract state="True"/>
-    <Restore state="False"/>
+    <Restore state="True"/>
     <VerifySSLCertificates state="False"/>
+    <DataSourceType value="File"/>
+    <UniversalPathList>$path</UniversalPathList>
+    <ImportOptions CharacterSet="UTF-8" PreserveContainer="False" MatchFieldNames="False" AutoEnter="True" SplitRepetitions="False" method="Add"/>
+    <Table id="" name=""/>
+    <TargetFields>
+      <Field FieldOptions="0" map="Import" id="" name=""/>
+      <Field FieldOptions="0" map="DoNotImport" id="" name=""/>
+    </TargetFields>
   </Step>
 </fmxmlsnippet>
+<!-- NoInteract state: "True" suppresses import-related dialog boxes. "False" displays dialog boxes. However, if data source file not specified, Open File dialog displays when script runs. -->
+<!-- Restore state: "True" uses stored import order (defines whether to add, update, or replace records in current found set and how source fields map to target fields). "False" does not restore stored import order. -->
+<!-- VerifySSLCertificates state: "True" verifies SSL certificate of server specified in HTTP request for XML data. "False" does not verify. If certificate cannot be verified: users can choose to connect or cancel; if Set Error Capture is On, behaves as if server unavailable. -->
+<!-- DataSourceType enumeration: "File" imports from file; other values for different data sources (e.g., ODBC, XML via HTTP). -->
+<!-- ImportOptions attributes: CharacterSet (character encoding: "UTF-8", "UTF-16", etc.); PreserveContainer ("True" preserves container field references, "False" does not); MatchFieldNames ("True" performs dynamic field name matching each time step runs, "False" uses fixed mapping); AutoEnter ("True" performs auto-enter options for individual fields, "False" does not); SplitRepetitions ("True" splits repeating fields, "False" does not); method ("Add" adds new records, "Update" updates existing records, "Replace" replaces found set records). -->
+<!-- Field map attribute: "Import" imports field; "DoNotImport" skips field; "MatchingNames" matches by field name. -->
+<!-- Required: DataSourceType, UniversalPathList (file or source path). -->
+<!-- Optional: NoInteract, Restore (specify import order), VerifySSLCertificates, ImportOptions, Table (target table), TargetFields (field mapping with FieldOptions and map attributes). -->
+<!-- Imports records from specified file or data source. -->
+<!-- If source file is open, found set is imported; if not, all records in source table are imported. -->
+<!-- Can set import order using Specify import order option, or perform with dialog box so user can set new criteria (e.g., importing data as new table). -->
+<!-- When import source fields and target fields mapped using matching names, field name matching is performed dynamically each time script step runs. -->
+<!-- To specify variable file path: place variable first in file path list followed by path to local file in format you want to import. When choosing Specify import order, step uses first file path it can locate. Because step can't evaluate variable until script runs, it uses next path (local file) to enable choosing options. However, when script runs, step uses file path defined by variable if variable can be evaluated. If only variable specified and not using Specify import order options, First Row Option dialog displays to choose whether first row contains field names. -->
+<!-- In server-side scripts: if NoInteract set to "On" (dialog), option is dimmed but step runs as if NoInteract is "True". Returns error for: importing to new table, importing from folder, importing images to container field. Only certain folders can be accessed (see Paths in server-side scripts). -->
+<!-- FileMaker Go: importing only from FileMaker Pro, CSV, TSV, DBF, and merge file formats supported; importing to new table not supported. -->
+<!-- WebDirect: not supported in mobile browsers; Specify data source option not supported (users must specify file accessible by web browser); importing only from FileMaker Pro, CSV, TSV, DBF, merge, and Excel formats supported. -->
+<!-- Server-side scripts, Go, and WebDirect support following options only if NoInteract is "True": source files in custom-separated values format; any row as field names (if NoInteract is "False", only first row can be specified); performing auto-enter options for individual fields. In WebDirect, if options predefined and NoInteract is "False", options users choose when script runs override predefined options. -->
+<!-- Partial support on Go (limited formats, no new table), WebDirect (no mobile browser, no Specify data source, limited formats), Server (restricted folders, errors for new table/folder/images), and Cloud (restricted folders, errors for new table/folder/images). Not supported on Data API or CWP. -->
+<!-- See https://help.claris.com/en/pro-help/content/import-records.html -->

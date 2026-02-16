@@ -3,8 +3,39 @@
   <Step enable="True" id="0" name="Export Records">
     <NoInteract state="True"/>
     <CreateDirectories state="True"/>
-    <Restore state="False"/>
-    <AutoOpen state="False"/>
-    <CreateEmail state="False"/>
+    <Restore state="True"/>
+    <AutoOpen state="True"/>
+    <CreateEmail state="True"/>
+    <Profile FieldDelimiter="&#9;" IsPredefined="-1" FieldNameRow="-1" DataType="TABS"/>
+    <UniversalPathList>$path</UniversalPathList>
+    <ExportOptions FormatUsingCurrentLayout="False" CharacterSet="UTF-8"/>
+    <ExportEntries>
+      <ExportEntry>
+        <Field table="" id="0" name=""/>
+      </ExportEntry>
+      <ExportEntry>
+        <Field table="" id="0" name=""/>
+      </ExportEntry>
+    </ExportEntries>
   </Step>
 </fmxmlsnippet>
+<!-- NoInteract state: "True" suppresses dialog boxes (export criteria and output file selection). "False" displays dialog boxes letting user set new export criteria. -->
+<!-- CreateDirectories state: "True" creates new folders specified in output file path. "False" does not create folders. -->
+<!-- Restore state: "True" uses export order that was in effect when script step was added. "False" does not restore stored export order. -->
+<!-- AutoOpen state: "True" automatically opens the file after saving. "False" does not open file. -->
+<!-- CreateEmail state: "True" creates email with file as attachment after saving. "False" does not create email. -->
+<!-- Profile attributes: FieldDelimiter (delimiter character; &#9; is tab), IsPredefined ("-1" for yes, other for no), FieldNameRow ("-1" includes field names as first row), DataType (export format: "TABS", "CSV", "MERGE", "DBF", "WK1", "BASIC", "DIF", "SYLK", "HTML", "XML", "XLSX", ".fp7", ".fmp12"). -->
+<!-- ExportOptions attributes: FormatUsingCurrentLayout ("True" applies current layout's data formatting to exported data; "False" uses last exported data formatting), CharacterSet (output file character set: "UTF-8", "UTF-16", "Windows", "DOS", "Macintosh", "ISO-8859-1", etc.). -->
+<!-- Required: UniversalPathList (output file path; can specify multiple paths one per line; FileMaker Pro uses first path it locates). -->
+<!-- Optional: NoInteract, CreateDirectories, Restore (specify export order), Profile (export format and options), ExportOptions, AutoOpen, CreateEmail, ExportEntries (fields to export with order). -->
+<!-- Exports records to specified file. Exports all records currently being browsed. To limit records, use find request before Export Records. -->
+<!-- File type depends on import requirements of program using exported data. Can export as Microsoft Excel worksheet by choosing Excel Workbooks (.xlsx). -->
+<!-- If XML specified as export file type, Specify XML and XSL Options dialog appears to specify XML grammar and optional XSLT style sheet for transformation. XSLT source may be file, HTTP request result, or calculation generating file path or HTTP request. -->
+<!-- Do not export fields whose name is entirely numeric (e.g., "2") or single-byte kana character (Japanese) using FMPDSORESULT grammar. -->
+<!-- If script does not specify absolute path and database file containing script is hosted, path is assumed to be current user's Documents folder. -->
+<!-- In server-side scripts: if NoInteract not set to "True", "(NOT compatible)" appears in script step but script runs as if NoInteract is "True". -->
+<!-- Server-side scripts: exporting to .fmp12 format not supported; only certain folders can be accessed (see Paths in server-side scripts documentation). -->
+<!-- FileMaker Go: exporting to .fmp12 or XML formats not supported; CreateDirectories option not supported. -->
+<!-- WebDirect: not supported in mobile browsers; exporting to .fmp12, XML, XLS, or XLSX formats not supported; CreateDirectories option not supported; if Specify output file selected, outputs with specified filename and file type but ignores file path; outputs to web browser's default download location; if field/record data too long for export format, Get(LastError) returns 0 rather than 736. -->
+<!-- Partial support on Go (no .fmp12, XML, or CreateDirectories), WebDirect (no mobile browser, .fmp12, XML, XLS, XLSX, or CreateDirectories; ignores path), Server (no .fmp12; restricted folders), and Cloud (no .fmp12; restricted folders). Not supported on Data API or CWP. -->
+<!-- See https://help.claris.com/en/pro-help/content/export-records.html -->

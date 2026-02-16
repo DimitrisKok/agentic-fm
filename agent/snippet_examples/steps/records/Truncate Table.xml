@@ -1,7 +1,20 @@
 <?xml version="1.0"?>
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Truncate Table">
-    <NoInteract state="False"/>
-    <BaseTable id="-1" name="&lt;Current Table&gt;"/>
+    <NoInteract state="True"/>
+    <BaseTable id="" comment="" name=""/>
   </Step>
 </fmxmlsnippet>
+<!-- NoInteract state: "True" suppresses confirmation dialog asking user to confirm record deletion. "False" displays confirmation dialog. -->
+<!-- Required: BaseTable (source table to truncate; can be current table or specified table in current file only; id should be populated with table ID). -->
+<!-- Optional: NoInteract. -->
+<!-- Deletes all records in specified source table regardless of current found set. IMPORTANT: Cannot undo deleting all records. -->
+<!-- Attempts to lock all records in source table before deleting. If cannot lock all records (e.g., record being edited by another user), stops and returns error code (capturable with Get(LastError)). -->
+<!-- May be faster than Delete All Records script step for deleting large number of records. -->
+<!-- Does NOT delete related records even if relationship is set up to do so. To delete related records as well, use Delete All Records instead. -->
+<!-- Requires account access with Full Access privilege set. -->
+<!-- Deletes contents of global container fields in specified table but does not delete contents of global fields of other types. -->
+<!-- If BaseTable is current table and active table occurrence when step is performed is from ODBC data source: step is skipped and returns error code. If active table occurrence is from external FileMaker Pro file, performs normally. -->
+<!-- Server-side scripts, Data API, and CWP run this step as if NoInteract is "True" (With dialog option is Off). -->
+<!-- Partial support on Server (no dialog), Cloud (no dialog), Data API (no dialog), and CWP (no dialog). -->
+<!-- See https://help.claris.com/en/pro-help/content/truncate-table.html -->

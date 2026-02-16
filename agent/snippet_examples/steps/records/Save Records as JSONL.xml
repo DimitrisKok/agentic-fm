@@ -1,11 +1,14 @@
 <?xml version="1.0"?>
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Save Records as JSONL">
-    <Option state="False"/>
+    <Option state="True"/>
     <CreateDirectories state="False"/>
     <FineTuneFormat state="False"/>
     <AutoOpen state="False"/>
     <CreateEmail state="False"/>
+    <UniversalPathList>$path</UniversalPathList>
+    <Table id="" name=""/>
     <SaveAsJSONL/>
   </Step>
 </fmxmlsnippet>
+<!-- See https://help.claris.com/en/pro-help/content/save-records-as-jsonl.html -->

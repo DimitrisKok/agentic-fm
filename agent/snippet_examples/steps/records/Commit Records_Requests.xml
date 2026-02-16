@@ -6,3 +6,10 @@
     <ESSForceCommit state="False"/>
   </Step>
 </fmxmlsnippet>
+<!-- NoInteract state: "True" suppresses confirmation dialog (commits without asking). "False" displays dialog asking users to confirm commit action (only applies when "Save record changes automatically" is cleared in Layout settings). -->
+<!-- Option state: "True" skips data entry validation (overrides validation options for fields set with "Only during data entry" validation; fields set to "Always" still validate). "False" performs normal validation. -->
+<!-- ESSForceCommit state: "True" overrides ESS locking conflicts (allows clients of ODBC data sources to force-commit changes when optimistic locking prevents commit). "False" respects locking conflicts. -->
+<!-- Optional: NoInteract, Option (skip data entry validation), ESSForceCommit (override ESS/ODBC locking). -->
+<!-- Commits a record or find request. Exits current record or find request, updating field data and making no field active. -->
+<!-- Partial support on Server, Cloud, Data API, and CWP. -->
+<!-- See https://help.claris.com/en/pro-help/content/commit-records-requests.html -->

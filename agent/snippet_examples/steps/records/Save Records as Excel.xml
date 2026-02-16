@@ -3,10 +3,40 @@
   <Step enable="True" id="0" name="Save Records as Excel">
     <NoInteract state="True"/>
     <CreateDirectories state="True"/>
-    <Restore state="False"/>
+    <Restore state="True"/>
     <AutoOpen state="False"/>
     <CreateEmail state="False"/>
+    <Profile FieldDelimiter="&#9;" IsPredefined="-1" FieldNameRow="-1" DataType="XLXE"/>
+    <UniversalPathList>$path</UniversalPathList>
+    <WorkSheet>
+      <Calculation><![CDATA[]]></Calculation>
+    </WorkSheet>
+    <Title>
+      <Calculation><![CDATA[]]></Calculation>
+    </Title>
+    <Subject>
+      <Calculation><![CDATA[]]></Calculation>
+    </Subject>
+    <Author>
+      <Calculation><![CDATA[]]></Calculation>
+    </Author>
     <SaveType value="BrowsedRecords"/>
     <UseFieldNames state="False"/>
   </Step>
 </fmxmlsnippet>
+<!-- NoInteract state: "True" suppresses Excel Options dialog box (if file already specified). "False" displays Excel Options dialog box. If file not specified, Save Records as Excel dialog displays when script runs, but Excel Options dialog does not display. -->
+<!-- CreateDirectories state: "True" creates new folders specified in output file path. "False" does not create folders. -->
+<!-- Restore state: "True" uses stored/specified options. "False" does not restore stored options. -->
+<!-- AutoOpen state: "True" automatically opens output file with default application. "False" does not open file. -->
+<!-- CreateEmail state: "True" displays new email message in user's default email application with output file attached. "False" does not create email. -->
+<!-- UseFieldNames state: "True" uses values in first row as field names. "False" uses values in first row as data. -->
+<!-- SaveType enumeration: "BrowsedRecords" saves records being browsed; "CurrentRecord" saves current record only. -->
+<!-- Profile attributes: FieldDelimiter (delimiter character; &#9; is tab), IsPredefined ("-1" for yes, other for no), FieldNameRow ("-1" includes field names as first row), DataType ("XLXE" for Excel format). -->
+<!-- Required: UniversalPathList (output file path; can specify multiple paths one per line; FileMaker Pro uses first path it locates). -->
+<!-- Optional: NoInteract, CreateDirectories, Restore (specify options), Profile, AutoOpen, CreateEmail, WorkSheet (worksheet name; text or calculated), Title (title metadata; text or calculated), Subject (subject metadata; text or calculated), Author (author metadata; text or calculated), SaveType, UseFieldNames. -->
+<!-- Saves records to specified Excel worksheet. -->
+<!-- If script does not specify absolute path and database file containing script is hosted, path is assumed to be current user's Documents folder. -->
+<!-- Operates in all modes except Find mode. -->
+<!-- Privilege set must include "Allow exporting" or script must be set to run with full access privileges. -->
+<!-- FileMaker Pro only. Not supported on Go, WebDirect, Server, Cloud, Data API, or CWP. -->
+<!-- See https://help.claris.com/en/pro-help/content/save-records-as-excel.html -->

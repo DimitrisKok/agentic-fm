@@ -2,3 +2,4 @@
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Copy All Records/Requests"/>
 </fmxmlsnippet>
+<!-- See https://help.claris.com/en/pro-help/content/copy-all-records-requests.html -->

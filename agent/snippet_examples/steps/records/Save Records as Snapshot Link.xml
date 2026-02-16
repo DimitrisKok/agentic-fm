@@ -4,5 +4,22 @@
     <CreateDirectories state="True"/>
     <CreateEmail state="False"/>
     <SaveType value="BrowsedRecords"/>
+    <UniversalPathList>$path</UniversalPathList>
   </Step>
 </fmxmlsnippet>
+<!-- CreateDirectories state: "True" creates new folders specified in output file path. "False" does not create folders. -->
+<!-- CreateEmail state: "True" displays new email message in user's default email application with output file attached. "False" does not create email. -->
+<!-- SaveType enumeration: "BrowsedRecords" saves entire found set of records; "CurrentRecord" saves only current record. -->
+<!-- Required: UniversalPathList (output file path; can specify multiple paths one per line; FileMaker Pro uses first path it locates). -->
+<!-- Optional: CreateDirectories, CreateEmail, SaveType. -->
+<!-- Saves found set of records to FileMaker Pro Snapshot Link (FMPSL) file. -->
+<!-- If script does not specify absolute path and database file containing script is hosted, path is assumed to be current user's Documents folder. -->
+<!-- Operates in all modes except Find mode. -->
+<!-- To send snapshot link via SMTP: use Send Mail script step with snapshot link file as attachment after this step in script. -->
+<!-- Can use with Get(TemporaryPath) function to save snapshot link to temporary location if not storing locally. If using Get(TemporaryPath) to form file path, first assign it to variable then use variable in Specify Output File dialog. -->
+<!-- WebDirect: Specify output file and CreateDirectories options not supported (saves to web browser's default download location); not supported in mobile browsers. -->
+<!-- FileMaker Go: if output file path not specified, uses file name to save snapshot link file; CreateDirectories option not supported. -->
+<!-- Server-side scripts can access only certain folders (see Paths in server-side scripts). -->
+<!-- Can open snapshot link file on multiple iOS or iPadOS devices if: (1) FileMaker Pro file is stored on each device, (2) snapshot link file was created in FileMaker Go, (3) original FileMaker Pro file and local copy have matching filenames and are at same relative location. -->
+<!-- Partial support on Go (no CreateDirectories; default filename behavior) and WebDirect (no Specify output file, CreateDirectories; no mobile browser; saves to browser download location). Not supported on Data API or CWP. -->
+<!-- See https://help.claris.com/en/pro-help/content/save-records-as-snapshot-link.html -->

@@ -4,3 +4,5 @@
     <NoInteract state="False"/>
   </Step>
 </fmxmlsnippet>
+<!-- NoInteract state: "True" suppresses the associated dialog. "False" shows the dialog. -->
+<!-- See https://help.claris.com/en/pro-help/content/delete-all-records.html -->
