@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Arrange All Windows">
-    <WindowArrangement value="TileHorizontally"/>
+    <WindowArrangement value="Cascade"/>
   </Step>
 </fmxmlsnippet>
+<!-- WindowArrangement value: "TileHorizontally" | "TileVertically" | "Cascade" | "BringAllToFront" -->
+<!-- See https://help.claris.com/en/pro-help/content/arrange-all-windows.html -->

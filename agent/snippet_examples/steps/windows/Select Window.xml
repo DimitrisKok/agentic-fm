@@ -2,6 +2,12 @@
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Select Window">
     <LimitToWindowsOfCurrentFile state="True"/>
-    <Window value="Current"/>
+    <Window value="ByName"/>
+    <Name>
+      <Calculation><![CDATA["name"]]></Calculation>
+    </Name>
   </Step>
 </fmxmlsnippet>
+<!-- Window value: "ByName" | "Current" -->
+<!-- When Window value is "ByName", Name is required. Otherwise, Name should not exist. -->
+<!-- See https://help.claris.com/en/pro-help/content/select-window.html -->

@@ -5,3 +5,5 @@
     <ShowHide value="Hide"/>
   </Step>
 </fmxmlsnippet>
+<!-- ShowHide value: "Show" | "Hide" | "Toggle" -->
+<!-- See https://help.claris.com/en/pro-help/content/show-hide-menubar.html -->

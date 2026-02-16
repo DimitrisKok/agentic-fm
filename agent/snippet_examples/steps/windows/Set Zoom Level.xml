@@ -5,3 +5,10 @@
     <Zoom value="100"/>
   </Step>
 </fmxmlsnippet>
+<!-- Zoom value: "100" | "75" | "50" | "25" (reduction values); "150" | "200" | "300" | "400" (enlargement values); "ZoomIn" (reduces screen image by one zoom level); "ZoomOut" (enlarges screen image by one zoom level). -->
+<!-- Lock state: "True" prohibits users from making changes to zoom level. "False" allows users to change zoom level (to allow, perform script step without Lock option). -->
+<!-- Enlarges or reduces the image on the screen. Use to specify preset zoom levels. -->
+<!-- To set default zoom level, can use OnWindowOpen script trigger. -->
+<!-- FileMaker Go: maximum enlargement value is 200% (not 300% or 400%). -->
+<!-- Partial support on Go (max 200% enlargement). Not supported on WebDirect, Server, Cloud, Data API, or CWP. -->
+<!-- See https://help.claris.com/en/pro-help/content/set-zoom-level.html -->

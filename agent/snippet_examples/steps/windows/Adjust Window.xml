@@ -4,3 +4,5 @@
     <WindowState value="ResizeToFit"/>
   </Step>
 </fmxmlsnippet>
+<!-- WindowState value: "ResizeToFit" | "Maximize" | "Minimize" | "Restore" | "Hide" -->
+<!-- See https://help.claris.com/en/pro-help/content/adjust-window.html -->

@@ -1,7 +1,35 @@
 <?xml version="1.0"?>
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="New Window">
-    <LayoutDestination value="CurrentLayout"/>
-    <NewWndStyles Style="Document" Close="Yes" Minimize="Yes" Maximize="Yes" Resize="Yes" Styles="3606018"/>
+    <LayoutDestination value="SelectedLayout"/>
+    <Name>
+      <Calculation><![CDATA[]]></Calculation>
+    </Name>
+    <Height>
+      <Calculation><![CDATA[]]></Calculation>
+    </Height>
+    <Width>
+      <Calculation><![CDATA[]]></Calculation>
+    </Width>
+    <DistanceFromTop>
+      <Calculation><![CDATA[]]></Calculation>
+    </DistanceFromTop>
+    <DistanceFromLeft>
+      <Calculation><![CDATA[]]></Calculation>
+    </DistanceFromLeft>
+    <NewWndStyles DimParentWindow="No" Toolbars="Yes" MenuBar="Yes" Style="Document" Close="Yes" Minimize="Yes" Maximize="Yes" Resize="Yes" Styles="1076299266"/>
+    <Layout id="0" name=""/>
   </Step>
 </fmxmlsnippet>
+<!-- LayoutDestination enumeration: "SelectedLayout" specifies layout by name from list; other values similar to Go to Layout step. -->
+<!-- NewWndStyles attributes: DimParentWindow ("Yes" darkens layout area of parent window for card, "No" does not); Toolbars ("Yes" shows FileMaker Pro status toolbar and FileMaker Go toolbar/editing toolbar, "No" does not); MenuBar ("Yes" shows area at top displaying installed menu set, "No" does not; not supported in macOS or when active window is card); Style ("Document" opens document window; "FloatingDocument" opens floating document window; "Dialog" opens dialog window; "Card" opens card); Close ("Yes" enables close button in window's title bar, "No" does not); Minimize ("Yes" enables minimize button in window's title bar, "No" does not); Maximize ("Yes" enables maximize button in window's title bar, "No" does not); Resize ("Yes" allows users to resize window, "No" does not); Styles (numeric style flags). -->
+<!-- NewWndStyles Style="Document | Floating | Dialog | Card" -->
+<!-- Optional: LayoutDestination, Layout (layout to be used), Name (window name; does not have to be unique), Height (height of new window in points), Width (width of new window in points), DistanceFromTop (new window's distance in points from top of screen; or for card, from top of layout in parent window), DistanceFromLeft (new window's distance in points from left of screen; or for card, from left of parent window), NewWndStyles. -->
+<!-- Creates new window based on foreground window. Can create document window, floating document window, dialog window, or card. -->
+<!-- Not necessary to enter values for each option. When no value entered, FileMaker Pro uses default value associated with Window menu > New Window command. -->
+<!-- When both maximize and minimize buttons disabled, these buttons do not appear in window's title bar. -->
+<!-- Can use script or button script step to control window, even if window controls disabled in window's title bar. -->
+<!-- FileMaker Go: does not support Floating Document and Dialog window style options; supports positioning and resizing options only for cards; always displays document windows in full screen. -->
+<!-- Data API and CWP: do not support window style settings. -->
+<!-- Partial support on Go (no Floating Document, Dialog; cards only for positioning/resizing; full screen documents), WebDirect (Document and Card only; one document + one card max; virtual windows), and CWP (no window style settings). -->
+<!-- See https://help.claris.com/en/pro-help/content/new-window.html -->

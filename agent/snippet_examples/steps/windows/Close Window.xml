@@ -2,6 +2,15 @@
 <fmxmlsnippet type="FMObjectList">
   <Step enable="True" id="0" name="Close Window">
     <LimitToWindowsOfCurrentFile state="True"/>
-    <Window value="Current"/>
+    <Window value="ByName"/>
+    <Name>
+      <Calculation><![CDATA[]]></Calculation>
+    </Name>
   </Step>
 </fmxmlsnippet>
+<!-- LimitToWindowsOfCurrentFile state: "True" restricts matches to current file (Current file only option). "False" matches all available FileMaker Pro files. -->
+<!-- Window enumeration: "ByName" specifies which window to close by name; "Current" closes the active window. -->
+<!-- Closes currently active window or any other window by name. -->
+<!-- Closing last window of file closes the file and halts execution of current script. -->
+<!-- In Windows: FileMaker Pro exits when no other windows are open or hidden. -->
+<!-- See https://help.claris.com/en/pro-help/content/close-window.html -->

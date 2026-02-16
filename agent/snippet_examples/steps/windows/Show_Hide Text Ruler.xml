@@ -4,3 +4,5 @@
     <ShowHide value="Show"/>
   </Step>
 </fmxmlsnippet>
+<!-- ShowHide value: "Show" | "Hide" | "Toggle" -->
+<!-- See https://help.claris.com/en/pro-help/content/show-hide-text-ruler.html -->

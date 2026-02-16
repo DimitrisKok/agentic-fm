@@ -4,3 +4,5 @@
     <View value="Cycle"/>
   </Step>
 </fmxmlsnippet>
+<!-- View value: "Cycle" | "Form" | "List" | "Table" -->
+<!-- See https://help.claris.com/en/pro-help/content/view-as.html -->
