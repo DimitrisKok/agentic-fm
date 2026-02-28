@@ -1,4 +1,5 @@
 import type { FMContext } from '@/context/types';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 
 const BASE = '';
 
@@ -17,6 +18,12 @@ export async function fetchIndex(name: string): Promise<string[][]> {
 export async function fetchSteps(): Promise<StepInfo[]> {
   const res = await fetch(`${BASE}/api/steps`);
   if (!res.ok) throw new Error('Failed to fetch steps');
+  return res.json();
+}
+
+export async function fetchStepCatalog(): Promise<StepCatalogEntry[]> {
+  const res = await fetch(`${BASE}/api/step-catalog`);
+  if (!res.ok) throw new Error('Failed to fetch step catalog');
   return res.json();
 }
 
@@ -105,6 +112,7 @@ export interface AISettingsResponse {
   provider: string;
   model: string;
   configuredProviders: string[];
+  promptMarker: string;
 }
 
 export async function fetchSettings(): Promise<AISettingsResponse> {
@@ -118,6 +126,7 @@ export async function saveSettings(update: {
   model?: string;
   apiKey?: string;
   apiKeyProvider?: string;
+  promptMarker?: string;
 }): Promise<AISettingsResponse> {
   const res = await fetch(`${BASE}/api/settings`, {
     method: 'POST',
@@ -177,8 +186,8 @@ export async function streamChat(
           try {
             const event = JSON.parse(line.slice(6)) as ChatStreamEvent;
             onEvent(event);
-          } catch {
-            // Skip malformed events
+          } catch (e) {
+            console.warn('[ai-chat] malformed SSE event:', line.slice(0, 200), e);
           }
         }
       }

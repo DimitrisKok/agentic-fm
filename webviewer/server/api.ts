@@ -88,7 +88,10 @@ export function apiMiddleware(): Plugin {
 
         // --- POST /api/chat ---
         if (req.method === 'POST' && pathname === '/api/chat') {
-          const body = JSON.parse(await readBody(req));
+          const raw = await readBody(req);
+          const body = JSON.parse(raw);
+          const roles = (body.messages ?? []).map((m: { role: string }) => m.role);
+          console.log(`[ai-chat] POST /api/chat — ${roles.length} messages [${roles.join(', ')}]`);
           await streamChat(body, res);
           return;
         }
@@ -106,6 +109,20 @@ export function apiMiddleware(): Plugin {
           } catch {
             res.statusCode = 404;
             res.end(JSON.stringify({ error: `Index ${name} not found` }));
+          }
+          return;
+        }
+
+        // --- GET /api/step-catalog ---
+        if (req.method === 'GET' && pathname === '/api/step-catalog') {
+          const catalogPath = path.join(agent, 'catalogs', 'step-catalog-en.json');
+          try {
+            const data = fs.readFileSync(catalogPath, 'utf-8');
+            res.setHeader('Content-Type', 'application/json');
+            res.end(data);
+          } catch {
+            res.statusCode = 404;
+            res.end(JSON.stringify({ error: 'step-catalog-en.json not found' }));
           }
           return;
         }

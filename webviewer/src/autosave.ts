@@ -23,12 +23,17 @@ export function saveDraft(hr: string, scriptName: string): void {
   // localStorage: immediate
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(draft));
-  } catch { /* quota exceeded or unavailable */ }
+  } catch (e) {
+    console.warn('[autosave] localStorage failed:', e);
+  }
 
   // Server: debounced
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    saveToServer(draft).catch(() => {});
+    console.log(`[autosave] saving to server (${hr.length} chars, name="${scriptName}")`);
+    saveToServer(draft).catch((e) => {
+      console.warn('[autosave] server save failed:', e);
+    });
   }, DEBOUNCE_MS);
 }
 

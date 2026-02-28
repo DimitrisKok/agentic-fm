@@ -19,12 +19,15 @@ export interface AISettings {
   model: string;
   /** Which providers have keys configured (never exposes actual values) */
   configuredProviders: string[];
+  /** Keyword used to mark script comments as AI-actionable prompts */
+  promptMarker: string;
 }
 
 interface FullSettings {
   provider: string;
   model: string;
   keys: Record<string, string>;
+  promptMarker: string;
 }
 
 /** Read settings from .env.local */
@@ -33,6 +36,7 @@ function readEnv(): FullSettings {
     provider: 'anthropic',
     model: '',
     keys: {},
+    promptMarker: 'prompt',
   };
 
   try {
@@ -47,6 +51,7 @@ function readEnv(): FullSettings {
 
       if (key === 'AI_PROVIDER') settings.provider = value;
       else if (key === 'AI_MODEL') settings.model = value;
+      else if (key === 'AI_PROMPT_MARKER') settings.promptMarker = value;
       else if (key.startsWith('AI_KEY_')) {
         const providerId = key.substring('AI_KEY_'.length).toLowerCase();
         settings.keys[providerId] = value;
@@ -78,6 +83,7 @@ function writeEnv(settings: FullSettings): void {
   const aiLines: string[] = [
     `AI_PROVIDER=${settings.provider}`,
     `AI_MODEL=${settings.model}`,
+    `AI_PROMPT_MARKER=${settings.promptMarker}`,
   ];
 
   for (const [providerId, key] of Object.entries(settings.keys)) {
@@ -90,15 +96,20 @@ function writeEnv(settings: FullSettings): void {
   fs.writeFileSync(ENV_FILE, output, 'utf-8');
 }
 
+/** Providers that use CLI auth and never need an API key */
+const KEYLESS_PROVIDERS = ['claude-code'];
+
 /** Get settings (safe for client — no key values) */
 export function getSettings(): AISettings {
   const full = readEnv();
+  const keyedProviders = Object.entries(full.keys)
+    .filter(([, v]) => v.length > 0)
+    .map(([k]) => k);
   return {
     provider: full.provider,
     model: full.model,
-    configuredProviders: Object.entries(full.keys)
-      .filter(([, v]) => v.length > 0)
-      .map(([k]) => k),
+    configuredProviders: [...keyedProviders, ...KEYLESS_PROVIDERS],
+    promptMarker: full.promptMarker,
   };
 }
 
@@ -108,11 +119,13 @@ export function updateSettings(update: {
   model?: string;
   apiKey?: string;
   apiKeyProvider?: string;
+  promptMarker?: string;
 }): AISettings {
   const full = readEnv();
 
   if (update.provider) full.provider = update.provider;
   if (update.model) full.model = update.model;
+  if (update.promptMarker !== undefined) full.promptMarker = update.promptMarker || 'prompt';
   if (update.apiKey !== undefined && update.apiKeyProvider) {
     full.keys[update.apiKeyProvider] = update.apiKey;
   }

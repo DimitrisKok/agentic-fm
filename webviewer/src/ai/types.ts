@@ -22,6 +22,8 @@ export interface AIProvider {
   readonly displayName: string;
   readonly defaultModel: string;
   readonly models: string[];
+  /** If true, this provider does not require an API key (e.g. uses CLI auth) */
+  readonly requiresKey?: boolean;
 
   chat(
     messages: AIMessage[],

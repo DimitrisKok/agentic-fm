@@ -11,6 +11,7 @@ export function AISettings({ onClose }: AISettingsProps) {
   const [providerId, setProviderId] = useState('anthropic');
   const [model, setModel] = useState('');
   const [apiKey, setKey] = useState('');
+  const [promptMarker, setPromptMarker] = useState('prompt');
   const [configuredProviders, setConfiguredProviders] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState('');
@@ -22,6 +23,7 @@ export function AISettings({ onClose }: AISettingsProps) {
       .then((s) => {
         setProviderId(s.provider);
         setModel(s.model);
+        setPromptMarker(s.promptMarker || 'prompt');
         setConfiguredProviders(s.configuredProviders);
         setLoading(false);
       })
@@ -42,8 +44,8 @@ export function AISettings({ onClose }: AISettingsProps) {
     setSaving(true);
     setStatus('');
     try {
-      // Save provider + model
-      const result = await saveSettings({ provider: providerId, model });
+      // Save provider + model + prompt marker
+      const result = await saveSettings({ provider: providerId, model, promptMarker });
 
       // Save API key if entered
       if (apiKey) {
@@ -64,6 +66,7 @@ export function AISettings({ onClose }: AISettingsProps) {
 
   const currentProvider = getProvider(providerId);
   const hasKey = configuredProviders.includes(providerId);
+  const needsKey = currentProvider?.requiresKey !== false;
 
   if (loading) {
     return (
@@ -95,7 +98,9 @@ export function AISettings({ onClose }: AISettingsProps) {
               {providers.map(p => (
                 <option key={p.id} value={p.id}>
                   {p.displayName}
-                  {configuredProviders.includes(p.id) ? ' (key set)' : ''}
+                  {p.requiresKey === false
+                    ? ' (CLI)'
+                    : configuredProviders.includes(p.id) ? ' (key set)' : ''}
                 </option>
               ))}
             </select>
@@ -115,21 +120,45 @@ export function AISettings({ onClose }: AISettingsProps) {
             </select>
           </div>
 
-          {/* API Key */}
+          {/* API Key — hidden for providers that use CLI auth */}
+          {needsKey ? (
+            <div>
+              <label class="block text-xs text-neutral-400 mb-1">
+                API Key
+                {hasKey && <span class="text-green-400 ml-1">(configured)</span>}
+              </label>
+              <input
+                type="password"
+                value={apiKey}
+                onInput={(e) => setKey((e.target as HTMLInputElement).value)}
+                placeholder={hasKey ? 'Enter new key to replace' : `Enter ${currentProvider?.displayName} API key`}
+                class="w-full bg-neutral-700 text-neutral-200 text-sm rounded px-2 py-1.5 outline-none placeholder:text-neutral-500"
+              />
+              <p class="text-xs text-neutral-500 mt-1">
+                Stored in <code>.env.local</code> on the server. Never sent to the browser.
+              </p>
+            </div>
+          ) : (
+            <div class="bg-neutral-700/50 rounded px-3 py-2">
+              <p class="text-xs text-green-400">Uses your Claude Code login session</p>
+              <p class="text-xs text-neutral-500 mt-1">
+                No API key needed. Make sure you are logged in via <code>claude login</code>.
+              </p>
+            </div>
+          )}
+
+          {/* Prompt Marker */}
           <div>
-            <label class="block text-xs text-neutral-400 mb-1">
-              API Key
-              {hasKey && <span class="text-green-400 ml-1">(configured)</span>}
-            </label>
+            <label class="block text-xs text-neutral-400 mb-1">Prompt marker keyword</label>
             <input
-              type="password"
-              value={apiKey}
-              onInput={(e) => setKey((e.target as HTMLInputElement).value)}
-              placeholder={hasKey ? 'Enter new key to replace' : `Enter ${currentProvider?.displayName} API key`}
+              type="text"
+              value={promptMarker}
+              onInput={(e) => setPromptMarker((e.target as HTMLInputElement).value)}
+              placeholder="prompt"
               class="w-full bg-neutral-700 text-neutral-200 text-sm rounded px-2 py-1.5 outline-none placeholder:text-neutral-500"
             />
             <p class="text-xs text-neutral-500 mt-1">
-              Stored in <code>.env.local</code> on the server. Never sent to the browser.
+              Script comments starting with <code># {promptMarker}:</code> are treated as AI instructions.
             </p>
           </div>
         </div>

@@ -1,11 +1,12 @@
 import * as monaco from 'monaco-editor';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 
 /**
  * Autocomplete provider for FileMaker script step names.
- * Sources step names from the /api/steps endpoint (snippet_examples enumeration).
+ * Driven by the step catalog for snippets, categories, and help links.
  */
 export function createCompletionProvider(
-  stepNames: string[],
+  catalog: StepCatalogEntry[],
 ): monaco.languages.CompletionItemProvider {
   return {
     triggerCharacters: [],
@@ -30,16 +31,17 @@ export function createCompletionProvider(
         endColumn: word.endColumn,
       };
 
-      const suggestions: monaco.languages.CompletionItem[] = stepNames.map((name, i) => {
-        const isControl = controlSteps.has(name);
+      const suggestions: monaco.languages.CompletionItem[] = catalog.map((entry, i) => {
+        const isControl = controlSteps.has(entry.name);
         return {
-          label: name,
+          label: entry.name,
           kind: isControl
             ? monaco.languages.CompletionItemKind.Keyword
             : monaco.languages.CompletionItemKind.Function,
-          insertText: getInsertText(name),
+          insertText: getInsertText(entry),
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-          detail: isControl ? 'Control flow' : 'Script step',
+          detail: isControl ? 'Control flow' : entry.category,
+          documentation: entry.helpUrl ? { value: `[Help](${entry.helpUrl})` } : undefined,
           sortText: String(i).padStart(4, '0'),
           range,
         };
@@ -56,33 +58,22 @@ const controlSteps = new Set([
   'Exit Script', 'Halt Script',
 ]);
 
-/** Generate snippet insert text with tab stops for common steps */
-function getInsertText(name: string): string {
-  switch (name) {
-    case 'Set Variable':
-      return 'Set Variable [ \\$$${1:varName} ; ${2:value} ]';
-    case 'Set Field':
-      return 'Set Field [ ${1:Table::Field} ; ${2:value} ]';
-    case 'If':
-      return 'If [ ${1:condition} ]\n\t$0\nEnd If';
-    case 'Else If':
-      return 'Else If [ ${1:condition} ]';
-    case 'Loop':
-      return 'Loop\n\t$0\nEnd Loop';
-    case 'Exit Loop If':
-      return 'Exit Loop If [ ${1:condition} ]';
-    case 'Exit Script':
-      return 'Exit Script [ Result: ${1:value} ]';
-    case 'Go to Layout':
-      return 'Go to Layout [ "${1:LayoutName}" ]';
-    case 'Perform Script':
-      return 'Perform Script [ "${1:ScriptName}" ; Parameter: ${2:value} ]';
-    case 'Show Custom Dialog':
-      return 'Show Custom Dialog [ "${1:Title}" ; "${2:Message}" ]';
-    case 'Go to Object':
-      return 'Go to Object [ Object Name: "${1:objectName}" ]';
-    default:
-      if (controlSteps.has(name)) return name;
-      return `${name} [ $0 ]`;
+/** Generate snippet insert text from catalog entry */
+function getInsertText(entry: StepCatalogEntry): string {
+  // Use catalog monacoSnippet if available
+  if (entry.monacoSnippet) return entry.monacoSnippet;
+
+  // Generate from hrSignature if available
+  if (entry.hrSignature) {
+    return `${entry.name} ${entry.hrSignature.replace(/\$/g, '\\$')}`;
   }
+
+  // Control steps without params: just the step name
+  if (controlSteps.has(entry.name)) return entry.name;
+
+  // Self-closing steps with no params: just the step name
+  if (entry.selfClosing && entry.params.length === 0) return entry.name;
+
+  // Default: step name with empty bracket and cursor
+  return `${entry.name} [ $0 ]`;
 }

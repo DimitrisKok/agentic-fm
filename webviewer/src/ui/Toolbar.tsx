@@ -7,6 +7,7 @@ interface ToolbarProps {
   onToggleXmlPreview: () => void;
   onToggleChat: () => void;
   onRefreshContext: () => void;
+  onNewScript: () => void;
   onValidate: () => void;
   onClipboard: () => void;
   onLoadScript: () => void;
@@ -20,6 +21,7 @@ export function Toolbar({
   onToggleXmlPreview,
   onToggleChat,
   onRefreshContext,
+  onNewScript,
   onValidate,
   onClipboard,
   onLoadScript,
@@ -30,6 +32,10 @@ export function Toolbar({
       <span class="font-semibold text-neutral-200">agentic-fm</span>
 
       <div class="h-4 w-px bg-neutral-600 mx-1" />
+
+      <ToolbarButton onClick={onNewScript} title="Create a new script">
+        New
+      </ToolbarButton>
 
       <ToolbarButton onClick={onValidate} title="Validate XML output">
         Validate

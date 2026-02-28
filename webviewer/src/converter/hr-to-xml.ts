@@ -9,14 +9,25 @@ import { getHrToXmlConverter, stepOpen, cdata } from './step-registry';
 import type { IdResolver } from './id-resolver';
 import { createIdResolver } from './id-resolver';
 import type { FMContext } from '@/context/types';
+import type { StepCatalogEntry } from './catalog-types';
+import { registerCatalogConverters } from './catalog-converter';
 
-// Import step registrations (side-effect imports)
+// Import step registrations (side-effect imports — must come before catalog registration)
 import './steps/control';
 import './steps/fields';
 import './steps/navigation';
 import './steps/records';
 import './steps/windows';
 import './steps/miscellaneous';
+
+let catalogLoaded = false;
+
+/** Load catalog entries into the converter registry (idempotent). */
+export function loadCatalog(catalog: StepCatalogEntry[]): void {
+  if (catalogLoaded) return;
+  catalogLoaded = true;
+  registerCatalogConverters(catalog);
+}
 
 export interface ConversionResult {
   xml: string;

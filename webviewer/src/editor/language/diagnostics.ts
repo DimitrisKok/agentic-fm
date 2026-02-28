@@ -1,17 +1,18 @@
 import * as monaco from 'monaco-editor';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 
 /**
  * Client-side diagnostics for FileMaker script.
  * Checks for:
  * - Unmatched If/End If, Loop/End Loop pairs
- * - Unknown step names (vs. snippet_examples list)
+ * - Unknown step names (vs. step catalog)
  * - Unclosed string literals
  */
 export function createDiagnosticsProvider(
   editor: monaco.editor.IStandaloneCodeEditor,
-  knownSteps: string[],
+  catalog: StepCatalogEntry[],
 ): monaco.IDisposable {
-  const knownSet = new Set(knownSteps.map(s => s.toLowerCase()));
+  const knownSet = new Set(catalog.map(e => e.name.toLowerCase()));
   const model = editor.getModel();
   if (!model) return { dispose() {} };
 

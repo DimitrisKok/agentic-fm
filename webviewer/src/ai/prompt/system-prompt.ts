@@ -1,5 +1,6 @@
 import type { FMContext } from '@/context/types';
 import type { StepInfo } from '@/api/client';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 
 /**
  * Build the system prompt for AI providers.
@@ -8,7 +9,9 @@ import type { StepInfo } from '@/api/client';
 export function buildSystemPrompt(opts: {
   context?: FMContext | null;
   steps?: StepInfo[];
+  catalog?: StepCatalogEntry[];
   codingConventions?: string;
+  promptMarker?: string;
 }): string {
   const sections: string[] = [];
 
@@ -42,9 +45,30 @@ Format rules:
     sections.push(`## Available Script Steps\n\n${stepList}`);
   }
 
+  // Step reference from catalog (only steps with known HR signatures)
+  if (opts.catalog && opts.catalog.length > 0) {
+    const known = opts.catalog.filter(e => e.hrSignature !== null);
+    if (known.length > 0) {
+      const lines = known.map(e => `- ${e.name} ${e.hrSignature}`);
+      sections.push(`## Script Step Reference\nUse EXACTLY these formats:\n${lines.join('\n')}`);
+    }
+  }
+
   // Context
   if (opts.context) {
     sections.push(`## Current Context\n\n${formatContext(opts.context)}`);
+  }
+
+  // Prompt markers
+  if (opts.promptMarker) {
+    sections.push(`## Prompt Markers
+
+Lines beginning with \`# ${opts.promptMarker}:\` are developer instructions embedded in the script.
+When the user asks you to evaluate or execute prompt markers, treat the text after
+\`# ${opts.promptMarker}:\` as task instructions for that point in the script. Generate the
+appropriate script steps to fulfill each marked instruction.
+
+The current marker keyword is: "${opts.promptMarker}"`);
   }
 
   return sections.join('\n\n---\n\n');
@@ -94,7 +118,7 @@ function formatContext(ctx: FMContext): string {
   if (ctx.value_lists) {
     parts.push('### Value Lists');
     for (const [name, data] of Object.entries(ctx.value_lists)) {
-      parts.push(`- "${name}": ${data.values.join(', ')}`);
+      parts.push(`- "${name}": ${data.values?.join(', ') ?? '(field-based)'}`);
     }
   }
 

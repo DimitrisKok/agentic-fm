@@ -6,6 +6,7 @@
 import type { ServerResponse } from 'node:http';
 import https from 'node:https';
 import { getApiKeyForProvider, getActiveConfig } from './settings';
+import { streamClaudeCode } from './claude-cli';
 
 interface ChatRequest {
   messages: { role: string; content: string }[];
@@ -21,9 +22,21 @@ export async function streamChat(
   const active = getActiveConfig();
   const providerId = body.provider ?? active.provider;
   const model = body.model ?? active.model;
+  console.log(`[ai-chat] provider=${providerId} model=${model || '(default)'} messages=${body.messages.length}`);
+
+  // Claude Code uses CLI auth — no API key needed
+  if (providerId === 'claude-code') {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    await streamClaudeCode(body.messages, model, res);
+    return;
+  }
+
   const apiKey = getApiKeyForProvider(providerId);
 
   if (!apiKey) {
+    console.warn(`[ai-chat] no API key for provider=${providerId}`);
     res.statusCode = 400;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({ error: `No API key configured for ${providerId}. Open Settings to add one.` }));
@@ -142,6 +155,7 @@ function proxyStream(opts: ProxyOpts): Promise<void> {
           let body = '';
           upstream.on('data', (chunk: Buffer) => { body += chunk.toString(); });
           upstream.on('end', () => {
+            console.warn(`[ai-chat] upstream API error ${upstream.statusCode}: ${body.slice(0, 500)}`);
             opts.res.write(`data: ${JSON.stringify({ type: 'error', error: `API error ${upstream.statusCode}: ${body}` })}\n\n`);
             opts.res.write('data: {"type":"done"}\n\n');
             opts.res.end();
@@ -166,8 +180,8 @@ function proxyStream(opts: ProxyOpts): Promise<void> {
                 if (text) {
                   opts.res.write(`data: ${JSON.stringify({ type: 'text', text })}\n\n`);
                 }
-              } catch {
-                // Skip malformed
+              } catch (e) {
+                console.warn(`[ai-chat] malformed upstream SSE line: ${data.slice(0, 200)}`, e);
               }
             }
           }
@@ -180,6 +194,7 @@ function proxyStream(opts: ProxyOpts): Promise<void> {
         });
 
         upstream.on('error', (err) => {
+          console.warn(`[ai-chat] upstream stream error:`, err);
           opts.res.write(`data: ${JSON.stringify({ type: 'error', error: String(err) })}\n\n`);
           opts.res.end();
           resolve();
@@ -188,6 +203,7 @@ function proxyStream(opts: ProxyOpts): Promise<void> {
     );
 
     req.on('error', (err) => {
+      console.warn(`[ai-chat] HTTPS request error:`, err);
       opts.res.write(`data: ${JSON.stringify({ type: 'error', error: String(err) })}\n\n`);
       opts.res.end();
       resolve();

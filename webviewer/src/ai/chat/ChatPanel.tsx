@@ -5,11 +5,14 @@ import { buildSystemPrompt } from '../prompt/system-prompt';
 import { MessageList } from './MessageList';
 import type { FMContext } from '@/context/types';
 import type { StepInfo } from '@/api/client';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 
 interface ChatPanelProps {
   context: FMContext | null;
   steps: StepInfo[];
+  catalog?: StepCatalogEntry[];
   editorContent: string;
+  promptMarker?: string;
   onInsertScript?: (script: string) => void;
 }
 
@@ -19,7 +22,7 @@ interface ChatMessage {
   streaming?: boolean;
 }
 
-export function ChatPanel({ context, steps, editorContent, onInsertScript }: ChatPanelProps) {
+export function ChatPanel({ context, steps, catalog, editorContent, promptMarker, onInsertScript }: ChatPanelProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -34,18 +37,25 @@ export function ChatPanel({ context, steps, editorContent, onInsertScript }: Cha
     const userMsg: ChatMessage = { role: 'user', content: text };
     setMessages(prev => [...prev, userMsg]);
 
-    const systemPrompt = buildSystemPrompt({ context, steps });
+    const systemPrompt = buildSystemPrompt({ context, steps, catalog, promptMarker });
 
-    // Include editor content as context
-    const contextMsg = editorContent
-      ? `\n\nCurrent editor content:\n\`\`\`\n${editorContent}\n\`\`\``
-      : '';
+    // Include editor content as context with line numbers
+    let contextMsg = '';
+    if (editorContent) {
+      const numbered = editorContent
+        .split('\n')
+        .map((line, i) => `${i + 1}: ${line}`)
+        .join('\n');
+      contextMsg = `\n\nCurrent editor content:\n\`\`\`\n${numbered}\n\`\`\``;
+    }
 
     const apiMessages = [
       { role: 'system', content: systemPrompt },
       ...messages.map(m => ({ role: m.role, content: m.content })),
       { role: 'user', content: text + contextMsg },
     ];
+
+    console.log(`[ai-chat] sending ${apiMessages.length} messages (system + ${messages.length} history + user)`);
 
     setIsStreaming(true);
     const controller = new AbortController();
@@ -69,6 +79,7 @@ export function ChatPanel({ context, steps, editorContent, onInsertScript }: Cha
               return updated;
             });
           } else if (event.type === 'error') {
+            console.warn('[ai-chat] stream error event:', event.error);
             setMessages(prev => {
               const updated = [...prev];
               updated[assistantIdx] = {
@@ -79,6 +90,7 @@ export function ChatPanel({ context, steps, editorContent, onInsertScript }: Cha
               return updated;
             });
           } else if (event.type === 'done') {
+            console.log('[ai-chat] stream complete');
             setMessages(prev => {
               const updated = [...prev];
               updated[assistantIdx] = { ...updated[assistantIdx], streaming: false };
@@ -89,6 +101,7 @@ export function ChatPanel({ context, steps, editorContent, onInsertScript }: Cha
         controller.signal,
       );
     } catch (err) {
+      console.error('[ai-chat] streamChat threw:', err);
       if ((err as Error).name !== 'AbortError') {
         setMessages(prev => {
           const updated = [...prev];
@@ -104,7 +117,7 @@ export function ChatPanel({ context, steps, editorContent, onInsertScript }: Cha
       setIsStreaming(false);
       abortRef.current = null;
     }
-  }, [input, isStreaming, messages, context, steps, editorContent]);
+  }, [input, isStreaming, messages, context, steps, editorContent, promptMarker]);
 
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

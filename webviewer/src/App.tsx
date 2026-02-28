@@ -7,9 +7,10 @@ import { ChatPanel } from '@/ai/chat/ChatPanel';
 import { AISettings } from '@/ai/settings/AISettings';
 import { LoadScriptDialog } from '@/ui/LoadScriptDialog';
 import type { FMContext } from '@/context/types';
-import { fetchContext, fetchSteps, validateSnippet, clipboardWrite } from '@/api/client';
+import { fetchContext, fetchSteps, fetchStepCatalog, fetchSettings, validateSnippet, clipboardWrite, writeSandbox } from '@/api/client';
 import type { StepInfo } from '@/api/client';
-import { hrToXml } from '@/converter/hr-to-xml';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
+import { hrToXml, loadCatalog } from '@/converter/hr-to-xml';
 import { saveDraft, restoreDraft } from '@/autosave';
 
 export function App() {
@@ -22,6 +23,8 @@ export function App() {
   const [showSettings, setShowSettings] = useState(false);
   const [showLoadScript, setShowLoadScript] = useState(false);
   const [steps, setSteps] = useState<StepInfo[]>([]);
+  const [catalog, setCatalog] = useState<StepCatalogEntry[]>([]);
+  const [promptMarker, setPromptMarker] = useState('prompt');
   const scriptNameRef = useRef('');
 
   // Keep ref in sync so the autosave effect always has the latest name
@@ -32,6 +35,11 @@ export function App() {
       setStatus('No CONTEXT.json found');
     });
     fetchSteps().then(setSteps).catch(() => {});
+    fetchStepCatalog().then(cat => {
+      setCatalog(cat);
+      loadCatalog(cat);
+    }).catch(() => {});
+    fetchSettings().then(s => setPromptMarker(s.promptMarker || 'prompt')).catch(() => {});
   }, []);
 
   // Restore draft on mount — skip if it's just the sample boilerplate
@@ -76,11 +84,28 @@ export function App() {
     };
   }, []);
 
+  const handleNewScript = useCallback(async () => {
+    const name = prompt('Script name:');
+    if (!name) return;
+    const hr = `# ${name} - 00\n`;
+    const { xml } = hrToXml(hr, context);
+    const filename = `${name} - 00.xml`;
+    setEditorContent(hr);
+    setScriptName(name);
+    try {
+      await writeSandbox(filename, xml);
+      setStatus(`New script: ${name}`);
+    } catch {
+      setStatus(`New script: ${name} (failed to save file)`);
+    }
+  }, [context]);
+
   const handleValidate = useCallback(async () => {
     setStatus('Validating...');
     const { xml, errors } = hrToXml(editorContent, context);
     if (errors.length > 0) {
-      setStatus(`Conversion: ${errors.length} warning(s)`);
+      console.warn('[validate] conversion errors:', errors);
+      setStatus(`Conversion: ${errors.map((e: { line: number; message: string }) => `L${e.line}: ${e.message}`).join('; ')}`);
       return;
     }
     try {
@@ -141,13 +166,14 @@ export function App() {
             setStatus('Failed to refresh context');
           });
         }}
+        onNewScript={handleNewScript}
         onValidate={handleValidate}
         onClipboard={handleClipboard}
         onLoadScript={() => setShowLoadScript(true)}
         onOpenSettings={() => setShowSettings(true)}
       />
       <div class="flex-1 min-h-0 flex">
-        <div class={`${showXmlPreview || showChat ? 'w-1/2' : 'w-full'} min-w-0`}>
+        <div class={`${showXmlPreview || showChat ? 'w-1/2' : 'w-full'} min-w-0 h-full`}>
           <EditorPanel
             value={editorContent}
             onChange={setEditorContent}
@@ -155,22 +181,24 @@ export function App() {
           />
         </div>
         {showXmlPreview && !showChat && (
-          <div class="w-1/2 min-w-0">
+          <div class="w-1/2 min-w-0 h-full">
             <XmlPreview hrText={editorContent} context={context} />
           </div>
         )}
         {showChat && (
-          <div class={showXmlPreview ? 'w-1/2 min-w-0 flex' : 'w-1/2 min-w-0'}>
+          <div class={showXmlPreview ? 'w-1/2 min-w-0 h-full flex' : 'w-1/2 min-w-0 h-full'}>
             {showXmlPreview && (
-              <div class="w-1/2 min-w-0">
+              <div class="w-1/2 min-w-0 h-full">
                 <XmlPreview hrText={editorContent} context={context} />
               </div>
             )}
-            <div class={showXmlPreview ? 'w-1/2 min-w-0' : 'w-full'}>
+            <div class={showXmlPreview ? 'w-1/2 min-w-0 h-full' : 'w-full h-full'}>
               <ChatPanel
                 context={context}
                 steps={steps}
+                catalog={catalog}
                 editorContent={editorContent}
+                promptMarker={promptMarker}
                 onInsertScript={handleInsertScript}
               />
             </div>

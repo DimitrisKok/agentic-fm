@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState } from 'preact/hooks';
 import * as monaco from 'monaco-editor';
 import { registerFileMakerLanguage, attachDiagnostics, LANGUAGE_ID } from './language/filemaker-script';
-import { fetchSteps } from '@/api/client';
+import { fetchStepCatalog } from '@/api/client';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 import type { FMContext } from '@/context/types';
 
 // Configure Monaco workers
@@ -23,21 +24,21 @@ interface EditorPanelProps {
 export function EditorPanel({ value, onChange, context }: EditorPanelProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
-  const [stepNames, setStepNames] = useState<string[]>([]);
+  const [catalog, setCatalog] = useState<StepCatalogEntry[]>([]);
 
-  // Fetch step names for autocomplete
+  // Fetch step catalog for autocomplete and diagnostics
   useEffect(() => {
-    fetchSteps()
-      .then(steps => setStepNames(steps.map(s => s.name)))
+    fetchStepCatalog()
+      .then(setCatalog)
       .catch(() => {
-        // Step names not available — autocomplete won't have step suggestions
+        // Catalog not available — autocomplete/diagnostics won't have step data
       });
   }, []);
 
-  // Register language once step names are loaded
+  // Register language once catalog is loaded
   useEffect(() => {
-    registerFileMakerLanguage(stepNames.length > 0 ? stepNames : undefined);
-  }, [stepNames]);
+    registerFileMakerLanguage(catalog.length > 0 ? catalog : undefined);
+  }, [catalog]);
 
   // Create editor
   useEffect(() => {
@@ -72,7 +73,7 @@ export function EditorPanel({ value, onChange, context }: EditorPanelProps) {
     });
 
     // Attach diagnostics
-    const diagDisposable = attachDiagnostics(editor, stepNames);
+    const diagDisposable = attachDiagnostics(editor, catalog);
 
     return () => {
       diagDisposable.dispose();

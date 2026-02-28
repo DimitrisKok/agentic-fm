@@ -3,12 +3,13 @@ import { monarchLanguage, languageConfiguration } from './monarch';
 import { filemakerDarkTheme } from './theme';
 import { createCompletionProvider } from './completion';
 import { createDiagnosticsProvider } from './diagnostics';
+import type { StepCatalogEntry } from '@/converter/catalog-types';
 
 const LANGUAGE_ID = 'filemaker-script';
 let registered = false;
 
 export function registerFileMakerLanguage(
-  stepNames?: string[],
+  catalog?: StepCatalogEntry[],
 ): void {
   if (registered) return;
   registered = true;
@@ -19,19 +20,19 @@ export function registerFileMakerLanguage(
 
   monaco.editor.defineTheme('filemaker-dark', filemakerDarkTheme);
 
-  if (stepNames) {
+  if (catalog && catalog.length > 0) {
     monaco.languages.registerCompletionItemProvider(
       LANGUAGE_ID,
-      createCompletionProvider(stepNames),
+      createCompletionProvider(catalog),
     );
   }
 }
 
 export function attachDiagnostics(
   editor: monaco.editor.IStandaloneCodeEditor,
-  stepNames?: string[],
+  catalog?: StepCatalogEntry[],
 ): monaco.IDisposable {
-  return createDiagnosticsProvider(editor, stepNames ?? []);
+  return createDiagnosticsProvider(editor, catalog ?? []);
 }
 
 export { LANGUAGE_ID };
